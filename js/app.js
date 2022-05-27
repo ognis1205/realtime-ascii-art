@@ -18,16 +18,28 @@ export default class Sketch {
     this.renderer.physicallyCorrectLights = true;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.container.appendChild(this.renderer.domElement);
-    this.camera = new THREE.PerspectiveCamera(
-      70,
-      window.innerWidth / window.innerHeight,
-      0.001,
-      1000
-    );
+//    this.camera = new THREE.PerspectiveCamera(
+//      70,
+//      window.innerWidth / window.innerHeight,
+//      0.001,
+//      1000
+//    );
+    var frustumSize = 1.4;
+    var aspect = 1;
+    this.camera = new THREE.OrthographicCamera(
+      frustumSize * aspect / -2,
+      frustumSize * aspect / 2,
+      frustumSize / 2,
+      frustumSize / -2,
+      -1000,
+      1000);
     this.camera.position.set(0, 0, 2);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.time = 0;
     this.isPlaying = true;
+    this.gridSize = 1;
+    this.size = 50;
+    this.cellSize = this.gridSize / this.size;
     this.addObjects();
     this.resize();
     this.render();
@@ -84,8 +96,18 @@ export default class Sketch {
       vertexShader: vertex,
       fragmentShader: fragment
     });
-    this.geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
-    this.plane = new THREE.Mesh(this.geometry, this.material);
+    this.geometry = new THREE.PlaneGeometry(this.cellSize, this.cellSize);
+    this.plane = new THREE.InstancedMesh(this.geometry, this.material, this.size ** 2);
+    let count = 0;
+    let dummy = new THREE.Object3D();
+    for (let i = 0; i < this.size; i++) {
+      for (let j = 0; j < this.size; j++) {
+        dummy.position.set(i * this.cellSize - 0.5, j * this.cellSize - 0.5);
+        dummy.updateMatrix();
+        this.plane.setMatrixAt(count++, dummy.matrix);
+      }
+    }
+    this.plane.instanceMatrix.needsUpdate = true;
     this.scene.add(this.plane);
   }
 
