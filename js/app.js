@@ -8,7 +8,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 export default class Sketch {
   constructor(options) {
     this.scene = new THREE.Scene();
-    this.container = oprions.dom;
+    this.container = options.dom;
     this.width = this.container.offsetWidth;
     this.height = this.container.offsetHeight;
     this.renderer = new THREE.WebGLRenderer();
