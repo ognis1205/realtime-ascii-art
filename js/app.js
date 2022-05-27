@@ -40,6 +40,7 @@ export default class Sketch {
     this.gridSize = 1;
     this.size = 50;
     this.cellSize = this.gridSize / this.size;
+    this.createTexture();
     this.addObjects();
     this.resize();
     this.render();
@@ -90,6 +91,7 @@ export default class Sketch {
       side: THREE.DoubleSide,
       uniforms: {
         time: { type: 'f', value: 0 },
+        chars: { type: 't', value: this.characterTexture },
         resolution: { type: 'v4', value: new THREE.Vector4() },
         uvRate1: { type: 'v2', value: new THREE.Vector2(1, 1) }
       },
@@ -109,6 +111,29 @@ export default class Sketch {
     }
     this.plane.instanceMatrix.needsUpdate = true;
     this.scene.add(this.plane);
+  }
+
+  createTexture() {
+    this.chars = '`,:;_-^"Il!i><~+?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$';
+    this.characterCanvas = document.createElement('canvas');
+    this.characterCanvas.style.position = 'fixed';
+    this.characterCanvas.style.bottom = 0;
+    this.characterCanvas.style.right = 0;
+    this.characterCanvas.style.width = `${20 * this.chars.length}px`;
+    this.characterCanvas.style.height = '20px';
+    this.characterCanvas.width = `${20 * this.chars.length}`;
+    this.characterCanvas.height = '20';
+    const characterCtx = this.characterCanvas.getContext('2d');
+    characterCtx.font = '100 20px helvetica';
+    characterCtx.fillStyle = '#F5F1EE';
+    characterCtx.fillRect(0, 0, this.chars.length * 20, 20);
+    for (let i = 0; i < this.chars.length; i += 1) {
+      const charWidth = characterCtx.measureText(this.chars[i]).width;
+      characterCtx.fillStyle = '#000';
+      characterCtx.fillText(this.chars[i], i * 20 + (20 - charWidth) / 2, 17);
+    }
+    this.characterTexture = new THREE.Texture(this.characterCanvas);
+    this.characterTexture.needsUpdate = true;
   }
 
   stop() {
