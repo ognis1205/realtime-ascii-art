@@ -99,4 +99,16 @@ export default class Sketch {
       this.isPlaying = true;
     }
   }
+
+  render() {
+    if (!this.isPlaying) return;
+    this.time += 0.05;
+    this.material.uniforms.time.value = this.time;
+    requestAnimationFrame(this.render.bind(this));
+    this.renderer.render(this.scene, this.camera);
+  }
 }
+
+new Sketch({
+  dom: document.getElementById('container')
+});
