@@ -98,18 +98,21 @@ export default class Sketch {
       vertexShader: vertex,
       fragmentShader: fragment
     });
-    this.geometry = new THREE.PlaneGeometry(this.cellSize, this.cellSize);
+    this.geometry = new THREE.PlaneBufferGeometry(this.cellSize, this.cellSize);
     this.plane = new THREE.InstancedMesh(this.geometry, this.material, this.size ** 2);
     let count = 0;
     let dummy = new THREE.Object3D();
+    let scales = new Float32Array(this.size ** 2);
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
         dummy.position.set(i * this.cellSize - 0.5, j * this.cellSize - 0.5);
         dummy.updateMatrix();
+        scales.set([Math.random()], count);
         this.plane.setMatrixAt(count++, dummy.matrix);
       }
     }
     this.plane.instanceMatrix.needsUpdate = true;
+    this.plane.geometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(scales, 1));
     this.scene.add(this.plane);
   }
 
