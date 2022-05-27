@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import mp4 from '../assets/video.mp4';
 import fragment from '../shader/fragment.glsl';
 import vertex from '../shader/vertex.glsl';
 import * as DAT from 'dat.gui';
@@ -18,12 +19,6 @@ export default class Sketch {
     this.renderer.physicallyCorrectLights = true;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.container.appendChild(this.renderer.domElement);
-//    this.camera = new THREE.PerspectiveCamera(
-//      70,
-//      window.innerWidth / window.innerHeight,
-//      0.001,
-//      1000
-//    );
     var frustumSize = 1.4;
     var aspect = 1;
     this.camera = new THREE.OrthographicCamera(
@@ -45,6 +40,43 @@ export default class Sketch {
     this.resize();
     this.render();
     this.setupResize();
+    this.initVideo();
+  }
+
+  initVideo() {
+//    this.video = document.getElementById('video');
+    this.video = document.createElement('video');
+    this.video.src = mp4;
+    this.video.muted = true;
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.canvas.width = this.size;
+    this.canvas.height = this.size;
+//    document.body.appendChild(this.canvas);
+//    this.video.addEventListener('play', () => {
+//      this.timerCallback();
+//    }, false);
+    this.video.play().then(() => {
+      this.timerCallback();
+    });
+  }
+
+  timerCallback() {
+    if (this.video.paused || this.video.ended) return;
+    this.computeFrame();
+    setTimeout(() => {
+      this.timerCallback();
+    }, 0);
+  }
+
+  computeFrame() {
+    let scales = new Float32Array(this.size ** 2);
+    this.ctx.drawImage(this.video, 0, 0, this.size, this.size);
+    let imageData = this.ctx.getImageData(0, 0, this.size, this.size);
+    for (let i = 0; i < imageData.data.length; i+=4)
+      scales.set([1. - imageData.data[i] / 255], i / 4);
+    this.plane.geometry.attributes.instanceScale.array = scales;
+    this.plane.geometry.attributes.instanceScale.needsUpdate = true;
   }
 
   settings() {
@@ -105,7 +137,7 @@ export default class Sketch {
     let scales = new Float32Array(this.size ** 2);
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
-        dummy.position.set(i * this.cellSize - 0.5, j * this.cellSize - 0.5);
+        dummy.position.set(j * this.cellSize - 0.5, - i * this.cellSize + 0.5);
         dummy.updateMatrix();
         scales.set([Math.random()], count);
         this.plane.setMatrixAt(count++, dummy.matrix);
