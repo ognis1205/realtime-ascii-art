@@ -33,7 +33,7 @@ export default class Sketch {
     this.time = 0;
     this.isPlaying = true;
     this.gridSize = 1;
-    this.size = 50;
+    this.size = 128;
     this.cellSize = this.gridSize / this.size;
     this.createTexture();
     this.addObjects();
@@ -44,7 +44,6 @@ export default class Sketch {
   }
 
   initVideo() {
-//    this.video = document.getElementById('video');
     this.video = document.createElement('video');
     this.video.src = mp4;
     this.video.muted = true;
@@ -52,10 +51,6 @@ export default class Sketch {
     this.ctx = this.canvas.getContext('2d');
     this.canvas.width = this.size;
     this.canvas.height = this.size;
-//    document.body.appendChild(this.canvas);
-//    this.video.addEventListener('play', () => {
-//      this.timerCallback();
-//    }, false);
     this.video.play().then(() => {
       this.timerCallback();
     });
